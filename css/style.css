@@ -482,7 +482,8 @@ header p {
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
+    overflow: auto;
+    max-height: calc(100vh - 80px);
 }
 
 .mail-header {
@@ -529,11 +530,16 @@ header p {
 }
 
 .mail-actions {
-    padding: 20px 24px;
+    padding: 16px 24px;
     background: #f8f9fa;
-    border-top: 1px solid #e8ecf1;
+    border-bottom: 1px solid #e8ecf1;
     display: flex;
     gap: 12px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 

@@ -49,9 +49,27 @@ async function loadSheetData() {
         const exRound = CONFIG.rounds[CONFIG._round] && CONFIG.rounds[CONFIG._round].excludeSentEmailsFromRound;
         if (exRound) {
             const sentSet = await loadSentEmailsFromRound(exRound);
+
+            // 제외 전 고유 응답 수 산출 (window.roundDispatchStats 용)
+            const beforeExclude = mergeRespondentsByEmail(rawData);
+            const respondedCount = beforeExclude.length;
+
             rawData = rawData.filter(r => !sentSet.has((r[CONFIG.columns.email] || '').toLowerCase().trim()));
+
+            const afterExclude = mergeRespondentsByEmail(rawData);
+            const targetsCount = afterExclude.length;
+            const excludedCount = respondedCount - targetsCount;
+
+            window.roundDispatchStats = {
+                responded: respondedCount,
+                excluded: excludedCount,
+                targets: targetsCount
+            };
+
+            return afterExclude;
         }
 
+        window.roundDispatchStats = null;
         return mergeRespondentsByEmail(rawData);
     } catch (error) {
         console.error('데이터 로딩 실패:', error);

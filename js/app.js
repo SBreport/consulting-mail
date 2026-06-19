@@ -108,10 +108,44 @@ function updateStats() {
 function updateProgressBar() {
     const progressSection = document.getElementById('progressSection');
     if (!progressSection) return;
-    
+
+    // 2차 발송 현황 패널 (excludeSentEmailsFromRound 설정이 있는 차수)
+    if (currentRound === 2 && window.roundDispatchStats) {
+        const ds = window.roundDispatchStats;
+        const sentDone = respondents.filter(r => r._sent).length;
+        const sentRate = ds.targets > 0 ? Math.round((sentDone / ds.targets) * 100) : 0;
+
+        progressSection.innerHTML = `
+            <div class="progress-title">📊 2차 발송 현황</div>
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <span class="progress-label">발송 대상</span>
+                    <span class="progress-value">${ds.targets}명</span>
+                    <span class="progress-sub">6월 설문 응답 ${ds.responded}명 중,<br>1차에 이미 받은 ${ds.excluded}명 제외</span>
+                </div>
+                <div class="progress-stat">
+                    <span class="progress-label">발송 완료</span>
+                    <span class="progress-value">${sentDone}명 (${sentRate}%)</span>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-bar-sent" style="width: ${sentRate}%"></div>
+                </div>
+                <div class="progress-legend">
+                    <span class="legend-item"><span class="legend-color sent"></span>발송완료</span>
+                    <span class="legend-item"><span class="legend-color remaining"></span>미발송</span>
+                </div>
+            </div>
+        `;
+        progressSection.style.display = 'block';
+        return;
+    }
+
+    // 1차 기존 진척률 패널
     if (progressData) {
         const { totalStudents, respondedCount, sentCount, responseRate, sentRate, notResponded, refundedStudents, refundedCount, emailOnlyCount, coffeeOnlyCount, bothCount } = progressData;
-        
+
         progressSection.innerHTML = `
             <div class="progress-title">📊 전체 진척률</div>
             <div class="progress-stats">
@@ -335,6 +369,25 @@ function selectRespondent(index) {
     document.getElementById('mailContent').style.display = 'none';
     document.getElementById('mailBody').style.display = 'block';
     document.getElementById('mailBody').innerHTML = currentHtmlMail;
+
+    // 선택과 동시에 서식 포함 자동 복사
+    const htmlBlob = new Blob([currentHtmlMail], { type: 'text/html' });
+    const plainBlob = new Blob([`제목: ${currentSubject}\n\n${currentPlainMail}`], { type: 'text/plain' });
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+        navigator.clipboard.write([
+            new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': plainBlob })
+        ]).then(() => {
+            showToast('본문이 복사됐어요. Gmail에 붙여넣으세요 ✨');
+        }).catch(() => {
+            navigator.clipboard.writeText(`제목: ${currentSubject}\n\n${currentPlainMail}`).then(() => {
+                showToast('⚠️ 서식 복사 미지원 — 텍스트로 복사했습니다.');
+            });
+        });
+    } else {
+        navigator.clipboard.writeText(`제목: ${currentSubject}\n\n${currentPlainMail}`).then(() => {
+            showToast('⚠️ 서식 복사 미지원 — 텍스트로 복사했습니다.');
+        });
+    }
 }
 
 
