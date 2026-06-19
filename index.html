@@ -15,7 +15,11 @@
                 <div class="header-links">
                    <a href="https://forms.gle/V9sTTAsHNGEnC8BbA" target="_blank" class="header-btn">📝 설문지 열기</a>
                    <a href="https://docs.google.com/spreadsheets/d/1xeCluwrOwDMvV5zpL7zKAYyTW2Ecf2Cnp9SBOmOn1uM/edit?resourcekey=&gid=1253956561#gid=1253956561" target="_blank" class="header-btn">📊 응답시트 열기</a>
-    </div>
+                </div>
+                <div class="round-tabs">
+                    <button id="roundTab1" class="round-tab" onclick="switchRound(1)">1차 발송</button>
+                    <button id="roundTab2" class="round-tab active" onclick="switchRound(2)">2차 발송</button>
+                </div>
         </header>
         
         <!-- 메인 컨텐츠 -->
@@ -111,7 +115,8 @@
                 </div>
                 
                 <div class="mail-actions">
-                    <button class="btn btn-primary" onclick="copyMail()">📋 메일 전문 복사</button>
+                    <button class="btn btn-primary" onclick="copyRichMail()">✨ 서식 포함 복사</button>
+                    <button class="btn btn-secondary" onclick="copyMail()">📋 텍스트만 복사</button>
                     <button class="btn btn-secondary" onclick="copySubject()">📌 제목만 복사</button>
                     <button class="btn btn-secondary" onclick="copyEmail()">✉️ 메일 주소 복사</button>
                 </div>

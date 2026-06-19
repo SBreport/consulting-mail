@@ -11,6 +11,9 @@ let selectedIndex = -1;
 let currentFilter = 'all';
 let duplicateEmails = [];
 let progressData = null;
+let currentPlainMail = '';
+let currentHtmlMail = '';
+let currentSubject = '';
 
 
 // ============================================================
@@ -322,30 +325,63 @@ function selectRespondent(index) {
     
     // 메일 정보 업데이트
     document.getElementById('mailTo').textContent = `${name} <${email}>`;
-    document.getElementById('mailSubject').textContent = generateMailSubject(name);
-    
-    // 메일 본문 생성
-    const mailBody = generateMailBody(data);
-    
+    currentSubject = generateMailSubject(name);
+    document.getElementById('mailSubject').textContent = currentSubject;
+
+    // 메일 본문 생성 (plain + HTML 모두 보관)
+    currentPlainMail = generateMailBody(data, CONFIG._templateVersion);
+    currentHtmlMail = generateMailHtml(data, CONFIG._templateVersion);
+
     document.getElementById('mailContent').style.display = 'none';
     document.getElementById('mailBody').style.display = 'block';
-    document.getElementById('mailBody').textContent = mailBody;
+    document.getElementById('mailBody').innerHTML = currentHtmlMail;
 }
 
 
 // ============================================================
 // 복사 기능
 // ============================================================
+function copyRichMail() {
+    if (selectedIndex < 0) {
+        showToast('먼저 응답자를 선택해 주세요.');
+        return;
+    }
+
+    const htmlContent = currentHtmlMail;
+    const plainContent = `제목: ${currentSubject}\n\n${currentPlainMail}`;
+
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard && navigator.clipboard.write) {
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+        const plainBlob = new Blob([plainContent], { type: 'text/plain' });
+        navigator.clipboard.write([
+            new ClipboardItem({
+                'text/html': htmlBlob,
+                'text/plain': plainBlob
+            })
+        ]).then(() => {
+            showToast('서식 포함 복사 완료! Gmail에 붙여넣으세요 ✨');
+        }).catch(() => {
+            // 실패 시 plain text 폴백
+            navigator.clipboard.writeText(plainContent).then(() => {
+                showToast('⚠️ 서식 복사 미지원 — 텍스트로 복사했습니다.');
+            });
+        });
+    } else {
+        // ClipboardItem 미지원 브라우저 폴백
+        navigator.clipboard.writeText(plainContent).then(() => {
+            showToast('⚠️ 서식 복사 미지원 — 텍스트로 복사했습니다.');
+        });
+    }
+}
+
 function copyMail() {
     if (selectedIndex < 0) {
         showToast('먼저 응답자를 선택해 주세요.');
         return;
     }
-    
-    const subject = document.getElementById('mailSubject').textContent;
-    const body = document.getElementById('mailBody').textContent;
-    const fullMail = `제목: ${subject}\n\n${body}`;
-    
+
+    const fullMail = `제목: ${currentSubject}\n\n${currentPlainMail}`;
+
     navigator.clipboard.writeText(fullMail).then(() => {
         showToast('✅ 메일 전문이 복사되었습니다.');
     });
@@ -356,10 +392,8 @@ function copySubject() {
         showToast('먼저 응답자를 선택해 주세요.');
         return;
     }
-    
-    const subject = document.getElementById('mailSubject').textContent;
-    
-    navigator.clipboard.writeText(subject).then(() => {
+
+    navigator.clipboard.writeText(currentSubject).then(() => {
         showToast('✅ 제목이 복사되었습니다.');
     });
 }
@@ -377,6 +411,32 @@ function copyEmail() {
         showToast('✅ 메일 주소가 복사되었습니다.');
     });
 }
+
+// ============================================================
+// 차수 전환
+// ============================================================
+async function switchRound(round) {
+    if (round === currentRound) return;
+
+    setRound(round);
+
+    // 토글 버튼 active 상태 갱신
+    document.getElementById('roundTab1').classList.toggle('active', round === 1);
+    document.getElementById('roundTab2').classList.toggle('active', round === 2);
+
+    // 상태 초기화
+    selectedIndex = -1;
+    currentFilter = 'all';
+
+    // 메일 미리보기 초기화
+    document.getElementById('mailBody').style.display = 'none';
+    document.getElementById('mailContent').style.display = '';
+    document.getElementById('mailTo').textContent = '-';
+    document.getElementById('mailSubject').textContent = '-';
+
+    await loadData();
+}
+
 
 // ============================================================
 // 토스트 메시지

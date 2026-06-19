@@ -2,13 +2,56 @@
 // 구글 스프레드시트에서 데이터를 불러오고 파싱하는 함수들
 
 /**
+ * 특정 차수의 발송완료 이메일 Set을 반환한다.
+ * CONFIG.columns swap에 의존하지 않고 rc.columns를 직접 사용한다.
+ * @param {number} round - 차수 번호
+ * @returns {Promise<Set<string>>}
+ */
+async function loadSentEmailsFromRound(round) {
+    try {
+        const rc = CONFIG.rounds[round];
+        const response = await fetch(rc.sheetUrl);
+        const csvText = await response.text();
+        const lines = csvText.split('\n');
+        const headers = parseCSVLine(lines[0]).map(h => h.trim());
+        const emailIdx = headers.indexOf(rc.columns.email);
+        const sentIdx = headers.indexOf(rc.columns.sent);
+        const cv = CONFIG.consultingValues;
+        const sentSet = new Set();
+
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const values = parseCSVLine(lines[i]);
+            const sentValue = (values[sentIdx] || '').trim();
+            if (sentValue === cv.email || sentValue === cv.coffee || sentValue === cv.both) {
+                const email = (values[emailIdx] || '').toLowerCase().trim();
+                if (email) sentSet.add(email);
+            }
+        }
+
+        return sentSet;
+    } catch (error) {
+        console.warn(`${round}차 발송완료 목록 로딩 실패:`, error);
+        return new Set();
+    }
+}
+
+/**
  * 설문 응답 데이터 불러오기
  */
 async function loadSheetData() {
     try {
         const response = await fetch(CONFIG.sheetUrl);
         const csvText = await response.text();
-        const rawData = parseCSV(csvText);
+        let rawData = parseCSV(csvText);
+
+        // 현재 차수에 excludeSentEmailsFromRound 설정이 있으면 해당 차수 발송완료자 제외
+        const exRound = CONFIG.rounds[CONFIG._round] && CONFIG.rounds[CONFIG._round].excludeSentEmailsFromRound;
+        if (exRound) {
+            const sentSet = await loadSentEmailsFromRound(exRound);
+            rawData = rawData.filter(r => !sentSet.has((r[CONFIG.columns.email] || '').toLowerCase().trim()));
+        }
+
         return mergeRespondentsByEmail(rawData);
     } catch (error) {
         console.error('데이터 로딩 실패:', error);

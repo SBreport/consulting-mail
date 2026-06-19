@@ -701,3 +701,38 @@ header p {
 .sent-list {
     margin-top: 10px;
 }
+
+
+/* ============================================================
+   차수 전환 토글
+   ============================================================ */
+.round-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.round-tab {
+    padding: 8px 24px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.round-tab:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+.round-tab.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+    font-weight: 700;
+}
