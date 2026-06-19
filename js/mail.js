@@ -622,20 +622,41 @@ function generateMailBody(data, version = 'v2') {
     // 인사말 + 현황 진단
     mail += generateIntro(name, statusText, monetizationText, targetText, concernText, version);
 
-    // 1️⃣ 방향 제안
-    mail += generateSection('1️⃣ 방향 제안', getDirectionContent(name, monetization, status, version));
+    if (version === 'v2') {
+        // v2: 시작점 안내 → 방향 제안 → 핵심 솔루션 → 실행 플랜 → 후속 지원
 
-    // 2️⃣ 시작점 안내
-    mail += generateSection('2️⃣ 시작점 안내', getStartPointContent(name, status, version));
+        // 1️⃣ 시작점 안내
+        mail += generateSection('1️⃣ 시작점 안내', getStartPointContent(name, status, version));
 
-    // 3️⃣ 핵심 솔루션
-    mail += generateSection('3️⃣ 핵심 솔루션', getSolutionContent(name, concern, version));
+        // 2️⃣ 방향 제안
+        mail += generateSection('2️⃣ 방향 제안', getDirectionContent(name, monetization, status, version));
 
-    // 4️⃣ 실행 플랜
-    mail += generateSection('4️⃣ 실행 플랜', getActionPlanContent(name, timeline, version));
+        // 3️⃣ 핵심 솔루션
+        mail += generateSection('3️⃣ 핵심 솔루션', getSolutionContent(name, concern, version));
 
-    // 📞 후속 지원
-    mail += generateSection('📞 후속 지원', getClosingContent(name, support, version));
+        // 4️⃣ 실행 플랜
+        mail += generateSection('4️⃣ 실행 플랜', getActionPlanContent(name, timeline, version));
+
+        // 📞 후속 지원
+        mail += generateSection('📞 후속 지원', getClosingContent(name, support, version));
+    } else {
+        // v1(기존): 방향 제안 → 시작점 안내 → 핵심 솔루션 → 실행 플랜 → 후속 지원
+
+        // 1️⃣ 방향 제안
+        mail += generateSection('1️⃣ 방향 제안', getDirectionContent(name, monetization, status, version));
+
+        // 2️⃣ 시작점 안내
+        mail += generateSection('2️⃣ 시작점 안내', getStartPointContent(name, status, version));
+
+        // 3️⃣ 핵심 솔루션
+        mail += generateSection('3️⃣ 핵심 솔루션', getSolutionContent(name, concern, version));
+
+        // 4️⃣ 실행 플랜
+        mail += generateSection('4️⃣ 실행 플랜', getActionPlanContent(name, timeline, version));
+
+        // 📞 후속 지원
+        mail += generateSection('📞 후속 지원', getClosingContent(name, support, version));
+    }
 
     // 서명
     mail += generateSignature();
@@ -733,8 +754,8 @@ function generateIntro(name, status, monetization, target, concern, version = 'v
 
 • 현재 상황 — **${status}**
 • 수익화 방향 — **${monetization}**
-${targetItem}
 ${concernItem}
+${targetItem}
 
 설문을 남겨주신 지 일주일 남짓 지났는데, 강의에서 다뤘던 내용 중 이미 적용해 보신 것과 아직 손대지 못한 것이 나뉘어 있을 텐데요.${undecidedHint} 지금 ${name}님께 가장 필요한 우선순위부터 하나씩 짚어보겠습니다.`;
 
@@ -983,8 +1004,8 @@ function generateIntroHtml(name, status, monetization, target, concern, version 
             '지난 설문에서 이렇게 답해 주셨어요.<br><br>' +
             '• 현재 상황 — **' + status + '**<br>' +
             '• 수익화 방향 — **' + monetization + '**<br>' +
-            targetItemHtml + '<br>' +
-            concernItemHtml + '<br><br>' +
+            concernItemHtml + '<br>' +
+            targetItemHtml + '<br><br>' +
             '설문을 남겨주신 지 일주일 남짓 지났는데, 강의에서 다뤘던 내용 중 이미 적용해 보신 것과 아직 손대지 못한 것이 나뉘어 있을 텐데요.' + undecidedHintHtml + ' 지금 ' + name + '님께 가장 필요한 우선순위부터 하나씩 짚어보겠습니다.';
     }
 
@@ -1039,20 +1060,41 @@ function generateMailHtml(data, version = 'v2') {
     // 인트로
     html += generateIntroHtml(name, statusText, monetizationText, targetText, concernText, version);
 
-    // 방향 제안
-    html += generateSectionHtml('방향 제안', getDirectionContent(name, monetization, status, version));
+    if (version === 'v2') {
+        // v2: 시작점 안내 → 방향 제안 → 핵심 솔루션 → 실행 플랜 → 후속 지원
 
-    // 시작점 안내
-    html += generateSectionHtml('시작점 안내', getStartPointContent(name, status, version));
+        // 시작점 안내
+        html += generateSectionHtml('시작점 안내', getStartPointContent(name, status, version));
 
-    // 핵심 솔루션
-    html += generateSectionHtml('핵심 솔루션', getSolutionContent(name, concern, version));
+        // 방향 제안
+        html += generateSectionHtml('방향 제안', getDirectionContent(name, monetization, status, version));
 
-    // 실행 플랜
-    html += generateSectionHtml('실행 플랜', getActionPlanContent(name, timeline, version));
+        // 핵심 솔루션
+        html += generateSectionHtml('핵심 솔루션', getSolutionContent(name, concern, version));
 
-    // 후속 지원
-    html += generateSectionHtml('후속 지원', getClosingContent(name, support, version));
+        // 실행 플랜
+        html += generateSectionHtml('실행 플랜', getActionPlanContent(name, timeline, version));
+
+        // 후속 지원
+        html += generateSectionHtml('후속 지원', getClosingContent(name, support, version));
+    } else {
+        // v1(기존): 방향 제안 → 시작점 안내 → 핵심 솔루션 → 실행 플랜 → 후속 지원
+
+        // 방향 제안
+        html += generateSectionHtml('방향 제안', getDirectionContent(name, monetization, status, version));
+
+        // 시작점 안내
+        html += generateSectionHtml('시작점 안내', getStartPointContent(name, status, version));
+
+        // 핵심 솔루션
+        html += generateSectionHtml('핵심 솔루션', getSolutionContent(name, concern, version));
+
+        // 실행 플랜
+        html += generateSectionHtml('실행 플랜', getActionPlanContent(name, timeline, version));
+
+        // 후속 지원
+        html += generateSectionHtml('후속 지원', getClosingContent(name, support, version));
+    }
 
     // 서명
     html += generateSignatureHtml();
