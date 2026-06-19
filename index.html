@@ -74,6 +74,9 @@
                     </div>
                 </div>
                 
+                <!-- 일괄 발송 -->
+                <button class="send-all-btn" onclick="sendAllPending()">📤 미발송 전체 발송</button>
+
                 <!-- 안내 -->
                 <div class="info-box">
                     <strong>💡 발송완료 표시 방법</strong>
@@ -112,6 +115,7 @@
                     <button class="btn btn-secondary" onclick="copyMail()">📋 텍스트만 복사</button>
                     <button class="btn btn-secondary" onclick="copySubject()">📌 제목만 복사</button>
                     <button class="btn btn-secondary" onclick="copyEmail()">✉️ 메일 주소 복사</button>
+                    <button class="btn btn-send" onclick="sendCurrent()">📤 발송하기</button>
                 </div>
 
                 <div class="mail-body">

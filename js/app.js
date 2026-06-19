@@ -466,6 +466,94 @@ function copyEmail() {
 }
 
 // ============================================================
+// Gmail 자동 발송
+// ============================================================
+
+/**
+ * GAS 웹앱으로 발송 요청을 전송한다.
+ * no-cors 모드라 응답 본문을 읽을 수 없으므로
+ * 요청 후 3초 뒤 loadData()로 시트 반영 여부를 확인한다.
+ * @param {Array<{to, subject, html, email}>} items
+ */
+function dispatchItems(items) {
+    if (!CONFIG.dispatch.gasUrl) {
+        showToast('발송 설정이 필요합니다 (GAS URL 미설정)');
+        return;
+    }
+
+    fetch(CONFIG.dispatch.gasUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ token: CONFIG.dispatch.token, items: items })
+    }).catch(function(err) {
+        // no-cors 환경에서 네트워크 오류 외에는 catch되지 않음
+        console.error('발송 요청 오류:', err);
+    });
+
+    showToast('발송 요청됨, 잠시 후 새로고침합니다');
+    setTimeout(loadData, 3000);
+}
+
+/**
+ * 현재 선택된 응답자 1명에게 메일을 발송한다.
+ */
+function sendCurrent() {
+    if (selectedIndex < 0) {
+        showToast('먼저 응답자를 선택해 주세요.');
+        return;
+    }
+
+    var data = filteredRespondents[selectedIndex];
+    var name  = data[CONFIG.columns.name];
+    var email = data[CONFIG.columns.email];
+
+    if (!email) {
+        showToast('이메일 주소가 없습니다.');
+        return;
+    }
+
+    var item = {
+        to:      email,
+        subject: generateMailSubject(name),
+        html:    generateMailHtml(data, CONFIG._templateVersion),
+        email:   email.toLowerCase().trim()
+    };
+
+    dispatchItems([item]);
+}
+
+/**
+ * 현재 차수의 미발송 응답자 전원에게 메일을 발송한다.
+ */
+function sendAllPending() {
+    var pending = respondents.filter(function(r) { return !r._sent; });
+
+    if (pending.length === 0) {
+        showToast('미발송 응답자가 없습니다.');
+        return;
+    }
+
+    if (!confirm('미발송 ' + pending.length + '명에게 지금 발송합니다. 되돌릴 수 없습니다. 진행할까요?')) {
+        return;
+    }
+
+    var items = pending.map(function(data) {
+        var name  = data[CONFIG.columns.name];
+        var email = data[CONFIG.columns.email];
+        return {
+            to:      email,
+            subject: generateMailSubject(name),
+            html:    generateMailHtml(data, CONFIG._templateVersion),
+            email:   (email || '').toLowerCase().trim()
+        };
+    });
+
+    dispatchItems(items);
+}
+
+
+// ============================================================
 // 차수 전환
 // ============================================================
 async function switchRound(round) {

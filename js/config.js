@@ -82,6 +82,13 @@ const CONFIG = {
         }
     },
 
+    // Gmail 자동 발송 설정
+    dispatch: {
+        gasUrl: '',   // GAS 웹앱 배포 URL — 배포 후 여기에 붙여넣기
+                      // 예) 'https://script.google.com/macros/s/AKfycb.../exec'
+        token: 'PUT_YOUR_SECRET_TOKEN_HERE'  // Code.gs의 TOKEN과 같은 값으로 설정
+    },
+
     // 아래 필드는 setRound()가 동적으로 채움 (직접 수정 금지)
     sheetUrl: '',
     studentListUrl: '',
