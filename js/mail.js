@@ -641,7 +641,20 @@ function generateMailBody(data, version = 'v2') {
     // 서명
     mail += generateSignature();
 
-    return mail;
+    return stripMdBold(mail);
+}
+
+/**
+ * 마크다운식 볼드 처리: 문구에 **굵게 만들 글자** 처럼 별표 두 개로 감싸면
+ *  - HTML 메일에서는 <b>로 변환되어 굵게 표시되고
+ *  - 일반 텍스트 메일에서는 별표가 제거되어 깔끔하게 나옵니다.
+ * (강조하고 싶을 때 mail.js 문구 안에서 **이렇게** 감싸면 됩니다.)
+ */
+function mdBoldToHtml(s) {
+    return String(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+}
+function stripMdBold(s) {
+    return String(s).replace(/\*\*(.+?)\*\*/g, '$1');
 }
 
 /**
@@ -701,7 +714,7 @@ function generateIntro(name, status, monetization, target, concern, version = 'v
         greeting =
 `안녕하세요, ${name}님. '병원 마케팅 대행사 노하우' 강사 ${CONFIG.sender.name}입니다.
 
-강의를 마치신 지도 어느덧 6개월이 지났네요. 얼마 전 아마겟돈에서 보내드린 메타 광고 강의는 잘 받아보셨는지요? 그동안 현장에서 직접 부딪혀 보며 느낀 점도, 막혀서 멈춰 계신 부분도 있으실 텐데요. 이번 설문에 남겨주신 내용을 토대로 ${name}님의 지금 상황을 점검하고, 다음 단계를 정리해 드리겠습니다.`;
+강의를 마치신 지도 어느덧 6개월이 지났네요. 얼마 전 아마겟돈에서 보내드린 **메타 광고** 강의는 잘 받아보셨는지요? 그동안 현장에서 직접 부딪혀 보며 느낀 점도, 막혀서 멈춰 계신 부분도 있으실 텐데요. 이번 설문에 남겨주신 내용을 토대로 ${name}님의 지금 상황을 점검하고, 다음 단계를 정리해 드리겠습니다.`;
 
         diagnosisLine = `${name}님은 현재 ${status}이시고, ${monetization}${attachJosa(monetization, '을', '를')} 계획하고 계시는군요. 강의 때 다뤘던 내용 중 실제로 적용해 보신 것과 아직 손대지 못한 것이 나뉘어 있을 텐데, 지금 짚어야 할 우선순위부터 정리해 보겠습니다.`;
 
@@ -938,7 +951,7 @@ function generateIntroHtml(name, status, monetization, target, concern, version 
 
         introParagraph =
             '안녕하세요, ' + name + '님. \'병원 마케팅 대행사 노하우\' 강사 ' + CONFIG.sender.name + '입니다.<br><br>' +
-            '강의를 마치신 지도 어느덧 6개월이 지났네요. 얼마 전 아마겟돈에서 보내드린 메타 광고 강의는 잘 받아보셨는지요? 그동안 현장에서 직접 부딪혀 보며 느낀 점도, 막혀서 멈춰 계신 부분도 있으실 텐데요.<br>' +
+            '강의를 마치신 지도 어느덧 6개월이 지났네요. 얼마 전 아마겟돈에서 보내드린 **메타 광고** 강의는 잘 받아보셨는지요? 그동안 현장에서 직접 부딪혀 보며 느낀 점도, 막혀서 멈춰 계신 부분도 있으실 텐데요.<br>' +
             '이번 설문에 남겨주신 내용을 토대로 ' + name + '님의 지금 상황을 점검하고, 다음 단계를 정리해 드리겠습니다.';
 
         diagnosisParagraph =
@@ -1015,5 +1028,5 @@ function generateMailHtml(data, version = 'v2') {
     // 서명
     html += generateSignatureHtml();
 
-    return '<div style="max-width:600px;font-family:\'Apple SD Gothic Neo\',\'맑은 고딕\',sans-serif;font-size:15px;line-height:1.7;color:#222;">' + html + '</div>';
+    return '<div style="max-width:600px;font-family:\'Apple SD Gothic Neo\',\'맑은 고딕\',sans-serif;font-size:15px;line-height:1.7;color:#222;">' + mdBoldToHtml(html) + '</div>';
 }
