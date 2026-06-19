@@ -767,6 +767,9 @@ ${targetItem}
     if (version === 'v2') {
         return `${greeting}
 
+※ 아직 아마겟돈 강의를 받지 못하셨다면, 아래 채널로 문의해 주세요.
+아마겟돈 카카오 채널 → http://pf.kakao.com/_zPMPn/chat
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${sectionTitle}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1011,8 +1014,13 @@ function generateIntroHtml(name, status, monetization, target, concern, version 
 
     const diagnosisHeading = version === 'v2' ? '현황 점검' : '현황 진단';
 
+    const channelNote = version === 'v2'
+        ? '<p style="margin:0 0 16px;font-size:13px;color:#888;">※ 아직 아마겟돈 강의를 받지 못하셨다면, 아래 채널로 문의해 주세요.<br>아마겟돈 카카오 채널 → <a href="http://pf.kakao.com/_zPMPn/chat" style="color:#1a73e8;text-decoration:underline;">바로가기</a></p>'
+        : '';
+
     return (
         '<p style="margin:0 0 16px;">' + introParagraph + '</p>' +
+        channelNote +
         '<hr style="border:none;border-top:1px solid #ddd;margin:24px 0;">' +
         '<h2 style="font-size:18px;font-weight:700;color:#111;margin:28px 0 12px;">' + diagnosisHeading + '</h2>' +
         '<p style="margin:0;">' + diagnosisParagraph + '</p>'
